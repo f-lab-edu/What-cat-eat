@@ -1,3 +1,5 @@
+import contextlib
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -22,3 +24,12 @@ Base = declarative_base()
 # 2. create_engine을 이용하여 커넥션 풀을 생성한다.
 # 3. 세션을 열어서 데이터베이스에 접속한다.
 # 4. declarative_base를 이용하여 데이터베이스 모델을 구성할 수 있도록 만들어준다.
+
+
+# @contextlib.contextmanager
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
