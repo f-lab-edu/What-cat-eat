@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from domain.user import user_router
+from api.endpoints.user import router
 
 app = FastAPI()
 
@@ -8,4 +8,4 @@ app = FastAPI()
 # async def root():
 #     return {"message": "Hello World"}
 
-app.include_router(user_router.router)
+app.include_router(router)
