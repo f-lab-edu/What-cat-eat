@@ -24,6 +24,7 @@ def create_user(user_create: UserCreate, db: Session = next(get_db())):
 
 def update_user(user_update: UserUpdate, id: int, db: Session = next(get_db())):
     user = db.query(User).filter(User.id == id)
+
     user_update.validate_password(user_update)
 
     del user_update.password_check
@@ -40,5 +41,12 @@ def get_existing_user(db: Session, user_create: UserCreate):
         db.query(User).filter(User.user_id == user_create.user_id).one_or_none()
     )
     if is_exist_user:
+        return True
+    return False
+
+
+def get_user(db: Session, id: int):
+    user = db.query(User).filter(User.id == id).one_or_none()
+    if user:
         return True
     return False
