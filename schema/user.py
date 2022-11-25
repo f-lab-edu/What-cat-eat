@@ -5,8 +5,6 @@ import re
 
 class UserBase(BaseModel):
     nickname: str = Field(default=None, max_lenght=15)
-    password: str
-    password_check: str
 
     def not_empty(cls, v):
         if not v or not v.strip():
@@ -35,7 +33,17 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     user_id: str = Field(default=None, max_lenght=15)
+    password: str
+    password_check: str
 
 
 class UserUpdate(UserBase):
-    pass
+    password: str
+    password_check: str
+
+
+class UserGet(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
