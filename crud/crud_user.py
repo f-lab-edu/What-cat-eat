@@ -49,10 +49,8 @@ def delete_user(id: int, db: Session) -> None:
     db.commit()
 
 
-def get_existing_user(user_create: UserCreate, db: Session):
-    is_exist_user = (
-        db.query(User).filter(User.user_id == user_create.user_id).one_or_none()
-    )
+def get_existing_user(db: Session, user_id: str):
+    is_exist_user = db.query(User).filter(User.user_id == user_id).one_or_none()
     if is_exist_user:
         return True
     return False

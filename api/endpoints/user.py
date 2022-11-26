@@ -22,7 +22,8 @@ def user_get(id: int, db: Session = Depends(get_db)):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def user_create(_user_create: UserCreate, db: Session = Depends(get_db)):
-    user = get_existing_user(db, user_create=_user_create.user_id)
+    user_id = _user_create.user_id
+    user = get_existing_user(db, user_id=user_id)
     if user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="이미 존재하는 사용자입니다."
