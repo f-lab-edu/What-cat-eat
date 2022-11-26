@@ -52,5 +52,4 @@ python -m pytest tests
 
 ## 사용 기술
 1. FastAPI
-2. Python3.8
-
+2. Python3.10
