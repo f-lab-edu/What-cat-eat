@@ -4,33 +4,34 @@ from models.user import User
 from passlib.context import CryptContext
 from database import get_db
 from datetime import datetime
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_user(id: int, db: Session) -> User:
+def get_user_by_id(id: int, db: Session) -> User:
     user = db.query(User).filter(User.id == id).one_or_none()
-    if user:
-        return user
-    else:
-        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    if not user:
+        return None
+    return user
+    
 
-
-def create_user(user_create: UserCreate, db: Session = next(get_db())):
+def create_user(user_create: UserCreate, db: Session = Depends(get_db())):
     db_user = User(
         user_id=user_create.user_id,
         password=pwd_context.hash(user_create.password),
         nickname=user_create.nickname,
         created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
     user_create.validate_password(user_create)
     db.add(db_user)
     db.commit()
+    db.refresh(db_user)
     return db_user
 
 
-def update_user(user_update: UserUpdate, id: int, db: Session = next(get_db())):
+def update_user(user_update: UserUpdate, id: int, db: Session = Depends(get_db())):
     user = db.query(User).filter(User.id == id)
 
     user_update.validate_password(user_update)
@@ -44,13 +45,12 @@ def update_user(user_update: UserUpdate, id: int, db: Session = next(get_db())):
 
 
 def delete_user(id: int, db: Session) -> None:
-    get_user(id, db)
+    user = get_user_by_id(id=id, db=db)
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
     db.query(User).filter(User.id == id).delete()
     db.commit()
 
 
-def get_existing_user(db: Session, user_id: str):
-    is_exist_user = db.query(User).filter(User.user_id == user_id).one_or_none()
-    if is_exist_user:
-        return True
-    return False
+def get_user_by_user_ID(user_id: str, db: Session):
+    print(db.query(User).filter(User.user_id == user_id).one_or_none())
