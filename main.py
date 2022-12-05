@@ -1,11 +1,10 @@
 from fastapi import FastAPI
-from api.endpoints.user import router
+from api.v1.endpoints import user
+from core.config import settings
+from database import Base, engine
 
+Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-# @app.get("/")
-# async def root():
-#     return {"message": "Hello World"}
-
-app.include_router(router)
+app.include_router(user.router, prefix=settings.API_V1_STR)
