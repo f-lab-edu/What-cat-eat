@@ -36,7 +36,13 @@ $ source env/bin/activate
 ```
 $ pip install -r requrements.txt
 ```
-5. 서버 실행하기(FastAPI)
+5. DB 초기화 및 alembic 세팅
+```
+$ alembic init migrations
+$ alembic revision --autogenerate
+$ alembic upgrade head
+```
+6. 서버 실행하기(FastAPI)
 ```
 $ uvicorn main:app --reload
 ```
