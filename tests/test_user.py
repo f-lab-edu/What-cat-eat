@@ -1,31 +1,22 @@
 from fastapi.testclient import TestClient
 from main import app
+from core.config import settings
 
 client = TestClient(app)
 
-# 에러가 있어서 수정 후 추가 예정
-# def test_do_not_input_all_field():
-#     response = client.post(
-#         "/user/",
-#         json={
-
-#         }
-#     )
-#     assert response.status_code == 400
-#     assert response.json() == {
-#         "detail": "필드를 모두 채워주세요"
-#     }
+BASE_URL = f"{settings.API_V1_STR}"
+ID = 0
 
 
 def test_get_unknown_user():
-    response = client.get("/api/user/999999/")
+    response = client.get(f"{BASE_URL}/user/999999/")
     assert response.status_code == 404
     assert response.json() == {"detail": "사용자를 찾을 수 없습니다."}
 
 
 def test_dont_match_password():
     response = client.post(
-        "/api/user/",
+        f"{BASE_URL}/user/",
         json={
             "user_id": "test_user",
             "nickname": "test",
@@ -39,7 +30,7 @@ def test_dont_match_password():
 
 def test_short_password():
     response = client.post(
-        "/api/user/",
+        f"{BASE_URL}/user/",
         json={
             "user_id": "test_user",
             "nickname": "test",
@@ -53,7 +44,7 @@ def test_short_password():
 
 def test_without_lowercases_in_password():
     response = client.post(
-        "/api/user/",
+        f"{BASE_URL}/user/",
         json={
             "user_id": "test_user",
             "nickname": "test",
@@ -67,7 +58,7 @@ def test_without_lowercases_in_password():
 
 def test_without_numbers_in_password():
     response = client.post(
-        "/api/user/",
+        f"{BASE_URL}/user/",
         json={
             "user_id": "test_user",
             "nickname": "test_user",
@@ -79,9 +70,97 @@ def test_without_numbers_in_password():
     assert response.json() == {"detail": "비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다."}
 
 
+def test_max_length_in_userid():
+    response = client.post(
+        f"{BASE_URL}/user/",
+        json={
+            "user_id": "testuserhelloworld",
+            "nickname": "test_user",
+            "password": "testuser1",
+            "password_check": "testuser1",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "user_id"]
+    assert response.json()["detail"][0]["msg"] == "ensure this value has at most 15 characters"
+
+
+def test_max_length_in_nickname():
+    response = client.post(
+        f"{BASE_URL}/user/",
+        json={
+            "user_id": "test_user",
+            "nickname": "testuserhelloworld",
+            "password": "testuser1",
+            "password_check": "testuser1",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "nickname"]
+    assert response.json()["detail"][0]["msg"] == "ensure this value has at most 15 characters"
+
+
+def test_min_length_in_userid():
+    response = client.post(
+        f"{BASE_URL}/user/",
+        json={
+            "user_id": "",
+            "nickname": "test_user",
+            "password": "testuser1",
+            "password_check": "testuser1",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "user_id"]
+    assert response.json()["detail"][0]["msg"] == "ensure this value has at least 1 characters"
+
+
+def test_min_length_in_nickname():
+    response = client.post(
+        f"{BASE_URL}/user/",
+        json={
+            "user_id": "test_user",
+            "nickname": "",
+            "password": "testuser1",
+            "password_check": "testuser1",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "nickname"]
+    assert response.json()["detail"][0]["msg"] == "ensure this value has at least 1 characters"
+
+
+def test_userid_is_empty():
+    response = client.post(
+        f"{BASE_URL}/user/",
+        json={
+            "nickname": "test_user",
+            "password": "testuser1",
+            "password_check": "testuser1",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "user_id"]
+    assert response.json()["detail"][0]["msg"] == "field required"
+
+
+def test_nickname_is_empty():
+    response = client.post(
+        f"{BASE_URL}/user/",
+        json={
+            "user_id": "test_user",
+            "password": "testuser1",
+            "password_check": "testuser1",
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "nickname"]
+    assert response.json()["detail"][0]["msg"] == "field required"
+
+
 def test_create_user():
     response = client.post(
-        "/api/user/",
+        f"{BASE_URL}/user/",
         json={
             "user_id": "test_user",
             "nickname": "test_user",
@@ -89,13 +168,16 @@ def test_create_user():
             "password_check": "testuser1",
         },
     )
+    global ID
+    ID = response.json()['id']
+
     assert response.status_code == 201
-    assert response.json() == {"detail": "사용자가 생성되었습니다."}
+    assert response.json() == {'id': ID, 'nickname': 'test_user'}
 
 
 def test_create_existing_user():
     response = client.post(
-        "/api/user/",
+        f"{BASE_URL}/user/",
         json={
             "user_id": "test_user",
             "nickname": "test_user",
@@ -108,19 +190,29 @@ def test_create_existing_user():
 
 
 def test_get_user():
-    response = client.get("/api/user/1/")
+    response = client.get(f"{BASE_URL}/user/{ID}/")
     assert response.status_code == 200
-    assert response.json() == {"nickname": "test_user", "id": 1}
+    assert response.json() == {'id': ID, 'nickname': 'test_user'}
 
 
 def test_update_user():
     response = client.put(
-        "/api/user/1/",
+        f"{BASE_URL}/user/{ID}/",
         json={
-            "nickname": "test_user_amend",
+            "nickname": "amend_user",
             "password": "testuser1",
             "password_check": "testuser1",
         },
     )
     assert response.status_code == 200
-    assert response.json() == {"detail": "수정되었습니다."}
+    assert response.json() == {'id': ID, 'nickname': 'amend_user'}
+
+
+def test_delete_user():
+    response = client.delete(
+        f"{BASE_URL}/user/{ID}/"
+    )
+    assert response.status_code == 200
+    assert response.json() == {"detail": "탈퇴되었습니다."}
+
+

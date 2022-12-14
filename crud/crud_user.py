@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from schema.user import UserCreate, UserUpdate
+from schema.user import validate_password, UserCreate, UserUpdate
 from models.user import User
 from passlib.context import CryptContext
 from database import get_db
@@ -9,12 +9,19 @@ from fastapi import HTTPException, Depends
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_user_by_id(id: int, db: Session) -> User:
+def get_user_by_id(id: int, db: Session = Depends()) -> User:
     user = db.query(User).filter(User.id == id).one_or_none()
     if not user:
         return None
     return user
+
     
+def get_user_by_nickname(nickname: str, db: Session) -> User:
+    user = db.query(User).filter(User.nickname == nickname).one_or_none()
+    if not user:
+        return None
+    return user
+
 
 def create_user(user_create: UserCreate, db: Session = Depends(get_db())):
     db_user = User(
@@ -24,7 +31,7 @@ def create_user(user_create: UserCreate, db: Session = Depends(get_db())):
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
-    user_create.validate_password(user_create)
+    validate_password(user_create)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -34,7 +41,7 @@ def create_user(user_create: UserCreate, db: Session = Depends(get_db())):
 def update_user(user_update: UserUpdate, id: int, db: Session = Depends(get_db())):
     user = db.query(User).filter(User.id == id)
 
-    user_update.validate_password(user_update)
+    validate_password(user_update)
 
     del user_update.password_check
     if user_update.password:
@@ -53,4 +60,7 @@ def delete_user(id: int, db: Session) -> None:
 
 
 def get_user_by_user_ID(user_id: str, db: Session):
-    print(db.query(User).filter(User.user_id == user_id).one_or_none())
+    user = db.query(User).filter(User.user_id == user_id).one_or_none()
+    if not user:
+        return None
+    return user
