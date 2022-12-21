@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
+*.db
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -164,3 +166,7 @@ cython_debug/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+# macOS
+.DS_Store
+migrations/.DS_Store
