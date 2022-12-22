@@ -6,7 +6,6 @@ import re
 class UserBase(BaseModel):
     nickname: str = Field(min_length=1, max_length=15)
     password: str
-    password_check: str
 
 
 class UserCreate(UserBase):
@@ -26,9 +25,6 @@ class UserGet(BaseModel):
 
 
 def validate_password(values):
-    if values.password_check != values.password:
-        raise HTTPException(status_code=400, detail="비밀번호가 일치하지 않습니다.")
-
     if len(values.password) < 8:
         raise HTTPException(status_code=400, detail="비밀번호 길이가 너무 짧습니다.")
 
