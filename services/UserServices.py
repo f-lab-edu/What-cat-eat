@@ -28,7 +28,6 @@ class UserService:
         validate_password(user_body)
 
         user = self.get_user(user_id=user_body.user_id, nickname=user_body.nickname)
-        print(user)
         if user:
             raise HTTPException(
                 status_code=409, detail="이미 존재하는 사용자입니다."
@@ -36,6 +35,7 @@ class UserService:
 
         return self.userRepository.create(
             User(
+                id=user_body.id,
                 user_id=user_body.user_id,
                 password=pwd_context.hash(user_body.password),
                 nickname=user_body.nickname,

@@ -50,3 +50,35 @@ class UserRepository(AbstractRepository):
         user = self.db.get(user, id)
         self.db.delete(user)
         self.db.commit()
+
+
+class FakeRepository(AbstractRepository):
+    def __init__(self):
+        self._user = []
+
+    def create(self, user_new: User):
+        self._user.append(user_new)
+        return self._user[user_new.id-1]
+
+    def get(self, user, id):
+        user = self._user[id-1]
+        if not user:
+            return None
+        return user
+
+    def get_value(self, user: User, nickname: str = None, user_id: str = None):
+        result = ([i.user_id for i in self._user] == user_id)
+        result |= ([i.nickname for i in self._user] == nickname)
+        if not result:
+            return None
+        return True
+
+    def update(self, id: int, user_update: User):
+        user = self._user[id-1]
+        user.nickname = user_update.nickname
+        user.password = user_update.password
+        return user
+
+    def delete(self, user_delete: User, id: int):
+        del self._user[id-1]
+        return len(self._user)

@@ -1,9 +1,11 @@
 from pydantic import BaseModel, Field
 from fastapi import HTTPException
 import re
+from typing import Optional
 
 
 class UserBase(BaseModel):
+    id: Optional[int] = Field(primary_key=True)
     nickname: str = Field(min_length=1, max_length=15)
     password: str
 
