@@ -67,8 +67,7 @@ class FakeRepository(AbstractRepository):
         return user
 
     def get_value(self, user: User, nickname: str = None, user_id: str = None):
-        result = ([i.user_id for i in self._user] == user_id)
-        result |= ([i.nickname for i in self._user] == nickname)
+        result = (user_id in [i.user_id for i in self._user]) | (nickname in [i.nickname for i in self._user])
         if not result:
             return None
         return True
