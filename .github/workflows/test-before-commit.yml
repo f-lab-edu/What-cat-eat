@@ -4,12 +4,18 @@ on:
     branches:
       - feat/*
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: "3.10"
-      - run: pip install -r requirements.dev.txt
-      - run: pytest 
+      - run: |
+          touch .env
+          echo SQLALCHEMY_DATABASE_URL=${{ secrets.SQLALCHEMY_DATABASE_URL }} >> .env
+          cat .env
+      - run: python -m venv env
+      - run: source env/bin/activate
+      - run: pip install -r requirements.txt
+      - run: python -m pytest
