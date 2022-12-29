@@ -15,7 +15,7 @@ def get_user_by_id(id: int, db: Session = Depends()) -> User:
         return None
     return user
 
-    
+
 def get_user_by_nickname(nickname: str, db: Session) -> User:
     user = db.query(User).filter(User.nickname == nickname).one_or_none()
     if not user:

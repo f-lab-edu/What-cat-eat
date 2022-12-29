@@ -20,18 +20,26 @@ class UserService:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
         return user
 
-    def get_user(self, nickname: str, user_id: str) -> User:
-        user = self.userRepository.get_value(User, nickname=nickname, user_id=user_id)
-        return user
-
     def create(self, user_body: UserCreate) -> User:
-        validate_password(user_body)
+        valid_password = validate_password(user_body.password)
+        if valid_password["success"] is True:
+            user_body.password = pwd_context.hash(user_body.password)
 
-        user = self.get_user(user_id=user_body.user_id, nickname=user_body.nickname)
-        if user:
+        else:
             raise HTTPException(
-                status_code=409, detail="이미 존재하는 사용자입니다."
+                status_code=valid_password["status_code"],
+                detail=valid_password["error"],
             )
+
+        find_user_by_user_id = self.userRepository.get_user_by_user_id(
+            user=User, user_id=user_body.user_id
+        )
+        find_user_by_nickname = self.userRepository.get_user_by_nickname(
+            user=User, nickname=user_body.nickname
+        )
+
+        if find_user_by_user_id | find_user_by_nickname:
+            raise HTTPException(status_code=409, detail="이미 존재하는 사용자입니다.")
 
         return self.userRepository.create(
             User(
@@ -49,14 +57,17 @@ class UserService:
         if not user_exist:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
-        validate_password(user_body)
-        user_body.password = (pwd_context.hash(user_body.password))
+        if validate_password(user_body.password):
+            user_body.password = pwd_context.hash(user_body.password)
+
+        else:
+            raise HTTPException(status_code=400, detail="비밀번호 길이가 너무 짧습니다.")
 
         return self.userRepository.update(
             id, User(nickname=user_body.nickname, password=user_body.password)
         )
 
-    def delete(self, id: int):
+    def delete(self, id: int) -> None:
         user_exist = self.get(id)
         if not user_exist:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")

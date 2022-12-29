@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from services.UserServices import UserService
 from schema.user import UserCreate, UserUpdate, UserGet
 
@@ -13,8 +13,8 @@ def get_user(id: int, userService: UserService = Depends()):
 
 
 @router.post("/", response_model=UserGet, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, userService: UserService = Depends()):
-    return userService.create(user)
+def create_user(user_body: UserCreate, userService: UserService = Depends()):
+    return userService.create(user_body)
 
 
 @router.put("/{id}/", response_model=UserGet, status_code=status.HTTP_200_OK)
@@ -26,4 +26,3 @@ def update_user(id: int, user_body: UserUpdate, userService: UserService = Depen
 def delete_user(id: int, userService: UserService = Depends()):
     userService.delete(id)
     return {"detail": "탈퇴되었습니다."}
-

@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from fastapi import HTTPException
 import re
 from typing import Optional
 
@@ -26,17 +25,22 @@ class UserGet(BaseModel):
         orm_mode = True
 
 
-def validate_password(values):
-    if len(values.password) < 8:
-        raise HTTPException(status_code=400, detail="비밀번호 길이가 너무 짧습니다.")
+def validate_password(password) -> dict:
+    if len(password) < 8:
+        return {"success": False, "status_code": 400, "error": "비밀번호 길이가 너무 짧습니다."}
 
-    if re.search(r"[a-z]", values.password) is None:
-        raise HTTPException(
-            status_code=400, detail="비밀번호는 한개 이상의 영소문자가 필수적으로 들어가야 합니다."
-        )
-    if re.search(r"\d", values.password) is None:
-        raise HTTPException(
-            status_code=400, detail="비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다."
-        )
+    if re.search(r"[a-z]", password) is None:
+        return {
+            "success": False,
+            "status_code": 400,
+            "error": "비밀번호는 한개 이상의 영소문자가 필수적으로 들어가야 합니다.",
+        }
 
-    return values.password
+    if re.search(r"\d", password) is None:
+        return {
+            "success": False,
+            "status_code": 400,
+            "error": "비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다.",
+        }
+
+    return {"success": True}

@@ -64,7 +64,10 @@ def test_max_length_in_userid():
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"] == ["body", "user_id"]
-    assert response.json()["detail"][0]["msg"] == "ensure this value has at most 15 characters"
+    assert (
+        response.json()["detail"][0]["msg"]
+        == "ensure this value has at most 15 characters"
+    )
 
 
 def test_max_length_in_nickname():
@@ -78,7 +81,10 @@ def test_max_length_in_nickname():
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"] == ["body", "nickname"]
-    assert response.json()["detail"][0]["msg"] == "ensure this value has at most 15 characters"
+    assert (
+        response.json()["detail"][0]["msg"]
+        == "ensure this value has at most 15 characters"
+    )
 
 
 def test_min_length_in_userid():
@@ -92,7 +98,10 @@ def test_min_length_in_userid():
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"] == ["body", "user_id"]
-    assert response.json()["detail"][0]["msg"] == "ensure this value has at least 1 characters"
+    assert (
+        response.json()["detail"][0]["msg"]
+        == "ensure this value has at least 1 characters"
+    )
 
 
 def test_min_length_in_nickname():
@@ -106,7 +115,10 @@ def test_min_length_in_nickname():
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"] == ["body", "nickname"]
-    assert response.json()["detail"][0]["msg"] == "ensure this value has at least 1 characters"
+    assert (
+        response.json()["detail"][0]["msg"]
+        == "ensure this value has at least 1 characters"
+    )
 
 
 def test_userid_is_empty():
@@ -145,10 +157,10 @@ def test_create_user():
         },
     )
     global ID
-    ID = response.json()['id']
+    ID = response.json()["id"]
 
     assert response.status_code == 201
-    assert response.json() == {'id': ID, 'nickname': 'test_user'}
+    assert response.json() == {"id": ID, "nickname": "test_user"}
 
 
 def test_create_existing_user():
@@ -167,7 +179,7 @@ def test_create_existing_user():
 def test_get_user():
     response = client.get(f"{BASE_URL}/user/{ID}/")
     assert response.status_code == 200
-    assert response.json() == {'id': ID, 'nickname': 'test_user'}
+    assert response.json() == {"id": ID, "nickname": "test_user"}
 
 
 def test_update_user():
@@ -179,14 +191,10 @@ def test_update_user():
         },
     )
     assert response.status_code == 200
-    assert response.json() == {'id': ID, 'nickname': 'amend_user'}
+    assert response.json() == {"id": ID, "nickname": "amend_user"}
 
 
 def test_delete_user():
-    response = client.delete(
-        f"{BASE_URL}/user/{ID}/"
-    )
+    response = client.delete(f"{BASE_URL}/user/{ID}/")
     assert response.status_code == 200
     assert response.json() == {"detail": "탈퇴되었습니다."}
-
-
