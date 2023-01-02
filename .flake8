@@ -7,7 +7,8 @@ exclude =
     __pycache__,
     env,
     .env
-    migrations/,
+    alembic/migrations/*,
+
 
 ignore =
     E121,
