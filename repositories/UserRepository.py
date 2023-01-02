@@ -21,22 +21,22 @@ class UserRepository(AbstractRepository):
     def __init__(self, db: Session = Depends(get_db)) -> None:
         self.db = db
 
-    def get(self, user: User, id: int) -> User:
-        user = self.db.get(user, id)
+    def get(self, id: int) -> User:
+        user = self.db.get(self._user, id)
         if not user:
             return None
         return user
 
-    def get_user_by_user_id(self, user: User, user_id: str = None) -> User:
+    def get_user_by_user_id(self, user_id: str = None) -> User:
         user = self.db.query(User).filter(User.user_id == user_id).first()
         if not user:
-            return False
+            return None
         return user
 
-    def get_user_by_nickname(self, user: User, nickname: str = None) -> User:
+    def get_user_by_nickname(self, nickname: str = None) -> User:
         user = self.db.query(User).filter(User.nickname == nickname).first()
         if not user:
-            return False
+            return None
         return user
 
     def create(self, user: User) -> User:
@@ -65,13 +65,13 @@ class FakeRepository(AbstractRepository):
         self._user.append(user_new)
         return self._user[user_new.id - 1]
 
-    def get(self, user, id):
+    def get(self, id):
         user = self._user[id - 1]
         if not user:
             return None
         return user
 
-    def get_value(self, user: User, nickname: str = None, user_id: str = None):
+    def get_value(self, nickname: str = None, user_id: str = None):
         result = (user_id in [i.user_id for i in self._user]) | (
             nickname in [i.nickname for i in self._user]
         )
@@ -79,13 +79,13 @@ class FakeRepository(AbstractRepository):
             return None
         return True
 
-    def get_user_by_user_id(self, user: User, user_id: str = None) -> User:
+    def get_user_by_user_id(self, user_id: str = None) -> User:
         user = user_id in [i.user_id for i in self._user]
         if not user:
             return False
         return user
 
-    def get_user_by_nickname(self, user: User, nickname: str = None) -> User:
+    def get_user_by_nickname(self, nickname: str = None) -> User:
         user = nickname in [i.nickname for i in self._user]
         if not user:
             return False

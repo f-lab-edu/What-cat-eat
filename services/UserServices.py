@@ -22,20 +22,20 @@ class UserService:
 
     def create(self, user_body: UserCreate) -> User:
         valid_password = validate_password(user_body.password)
-        if valid_password["success"] is True:
+        if valid_password.success is True:
             user_body.password = pwd_context.hash(user_body.password)
 
         else:
             raise HTTPException(
-                status_code=valid_password["status_code"],
-                detail=valid_password["error"],
+                status_code=valid_password.status_code,
+                detail=valid_password.error,
             )
 
         find_user_by_user_id = self.userRepository.get_user_by_user_id(
-            user=User, user_id=user_body.user_id
+            user_id=user_body.user_id
         )
         find_user_by_nickname = self.userRepository.get_user_by_nickname(
-            user=User, nickname=user_body.nickname
+            nickname=user_body.nickname
         )
 
         if find_user_by_user_id | find_user_by_nickname:
