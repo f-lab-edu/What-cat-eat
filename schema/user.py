@@ -1,12 +1,12 @@
 from pydantic import BaseModel, Field
+from fastapi import HTTPException
 import re
-from typing import Optional
 
 
 class UserBase(BaseModel):
-    id: Optional[int] = Field(primary_key=True)
     nickname: str = Field(min_length=1, max_length=15)
     password: str
+    password_check: str
 
 
 class UserCreate(UserBase):
@@ -25,24 +25,20 @@ class UserGet(BaseModel):
         orm_mode = True
 
 
-class ValidatePassword(BaseModel):
-    success: bool
-    status_code: int = 200
-    error: str = None
+def validate_password(values):
+    if values.password_check != values.password:
+        raise HTTPException(status_code=400, detail="비밀번호가 일치하지 않습니다.")
 
+    if len(values.password) < 8:
+        raise HTTPException(status_code=400, detail="비밀번호 길이가 너무 짧습니다.")
 
-def validate_password(password) -> ValidatePassword:
-    if len(password) < 8:
-        return ValidatePassword(success=False, status_code=400, error="비밀번호가 너무 짧습니다.")
-
-    if re.search(r"[a-z]", password) is None:
-        return ValidatePassword(
-            success=False, status_code=400, error="비밀번호는 한개 이상의 영소문자가 필수적으로 들어가야 합니다."
+    if re.search(r"[a-z]", values.password) is None:
+        raise HTTPException(
+            status_code=400, detail="비밀번호는 한개 이상의 영소문자가 필수적으로 들어가야 합니다."
+        )
+    if re.search(r"\d", values.password) is None:
+        raise HTTPException(
+            status_code=400, detail="비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다."
         )
 
-    if re.search(r"\d", password) is None:
-        return ValidatePassword(
-            success=False, status_code=400, error="비밀번호는 한개 이상의 숫자가 필수적으로 들어가야 합니다."
-        )
-
-    return {"success": True}
+    return values.password
