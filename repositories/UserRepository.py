@@ -27,16 +27,16 @@ class UserRepository(AbstractRepository):
             return None
         return user
 
-    def get_user_by_user_id(self, user: User, user_id: str = None) -> User:
+    def get_user_by_user_id(self, user_id: str = None) -> User:
         user = self.db.query(User).filter(User.user_id == user_id).first()
         if not user:
-            return False
+            return None
         return user
 
-    def get_user_by_nickname(self, user: User, nickname: str = None) -> User:
+    def get_user_by_nickname(self, nickname: str = None) -> User:
         user = self.db.query(User).filter(User.nickname == nickname).first()
         if not user:
-            return False
+            return None
         return user
 
     def create(self, user: User) -> User:
@@ -71,7 +71,7 @@ class FakeRepository(AbstractRepository):
             return None
         return user
 
-    def get_value(self, user: User, nickname: str = None, user_id: str = None):
+    def get_value(self, nickname: str = None, user_id: str = None):
         result = (user_id in [i.user_id for i in self._user]) | (
             nickname in [i.nickname for i in self._user]
         )
@@ -79,16 +79,16 @@ class FakeRepository(AbstractRepository):
             return None
         return True
 
-    def get_user_by_user_id(self, user: User, user_id: str = None) -> User:
+    def get_user_by_user_id(self, user_id: str = None) -> User:
         user = user_id in [i.user_id for i in self._user]
         if not user:
-            return False
+            return None
         return user
 
-    def get_user_by_nickname(self, user: User, nickname: str = None) -> User:
+    def get_user_by_nickname(self, nickname: str = None) -> User:
         user = nickname in [i.nickname for i in self._user]
         if not user:
-            return False
+            return None
         return user
 
     def update(self, id: int, user_update: User):
@@ -97,6 +97,6 @@ class FakeRepository(AbstractRepository):
         user.password = user_update.password
         return user
 
-    def delete(self, id: int):
+    def delete(self, user: User, id: int):
         del self._user[id - 1]
         return len(self._user)
