@@ -82,13 +82,13 @@ class FakeRepository(AbstractRepository):
     def get_user_by_user_id(self, user_id: str = None) -> User:
         user = user_id in [i.user_id for i in self._user]
         if not user:
-            return False
+            return None
         return user
 
     def get_user_by_nickname(self, nickname: str = None) -> User:
         user = nickname in [i.nickname for i in self._user]
         if not user:
-            return False
+            return None
         return user
 
     def update(self, id: int, user_update: User):
@@ -97,6 +97,6 @@ class FakeRepository(AbstractRepository):
         user.password = user_update.password
         return user
 
-    def delete(self, id: int):
+    def delete(self, user: User, id: int):
         del self._user[id - 1]
         return len(self._user)

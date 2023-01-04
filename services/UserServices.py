@@ -21,16 +21,6 @@ class UserService:
         return user
 
     def create(self, user_body: UserCreate) -> User:
-        valid_password = validate_password(user_body.password)
-        if valid_password.success is True:
-            user_body.password = pwd_context.hash(user_body.password)
-
-        else:
-            raise HTTPException(
-                status_code=valid_password.status_code,
-                detail=valid_password.error,
-            )
-
         find_user_by_user_id = self.userRepository.get_user_by_user_id(
             user_id=user_body.user_id
         )
@@ -38,14 +28,24 @@ class UserService:
             nickname=user_body.nickname
         )
 
-        if find_user_by_user_id | find_user_by_nickname:
+        if (find_user_by_user_id is not None) or (find_user_by_nickname is not None):
             raise HTTPException(status_code=409, detail="이미 존재하는 사용자입니다.")
+
+        valid_password = validate_password(user_body.password)
+        if valid_password.success is True:
+            hashed_password = pwd_context.hash(user_body.password)
+
+        else:
+            raise HTTPException(
+                status_code=valid_password.status_code,
+                detail=valid_password.error,
+            )
 
         return self.userRepository.create(
             User(
                 id=user_body.id,
                 user_id=user_body.user_id,
-                password=pwd_context.hash(user_body.password),
+                password=hashed_password,
                 nickname=user_body.nickname,
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
