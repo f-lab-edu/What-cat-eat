@@ -33,7 +33,9 @@ class ValidatePassword(BaseModel):
 
 def validate_password(password) -> ValidatePassword:
     if len(password) < 8:
-        return ValidatePassword(success=False, status_code=400, error="비밀번호 길이가 너무 짧습니다.")
+        return ValidatePassword(
+            success=False, status_code=400, error="비밀번호 길이가 너무 짧습니다."
+        )
 
     if re.search(r"[a-z]", password) is None:
         return ValidatePassword(
