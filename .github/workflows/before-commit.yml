@@ -1,8 +1,10 @@
 name: before-commit
 on:
   push:
-    branches:
-      - feat/*
+    branches-ignore:
+      - develop
+      - release/**
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
