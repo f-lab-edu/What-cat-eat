@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+force-exclude = '''
+  alembic/versions,
+  alembic/env,
+'''

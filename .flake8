@@ -7,7 +7,8 @@ exclude =
     __pycache__,
     env,
     .env
-    alembic/migrations/*,
+    alembic/versions,
+    alembic/env,
 
 
 ignore =
@@ -28,4 +29,4 @@ ignore =
     W503,
     B950,
 
-max-line-length = 200
+max-line-length = 88
