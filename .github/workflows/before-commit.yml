@@ -40,7 +40,7 @@ jobs:
         with:
           line-length: 88
           path: .
-          args: ". --check --exclude alembic/versions, alembic/env"
+          args: ". --check --force-exclude alembic/versions, alembic/env"
 
       - name: Test with pytest
         run: |
