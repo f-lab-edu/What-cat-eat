@@ -40,7 +40,7 @@ jobs:
         with:
           line-length: 88
           path: .
-          args: ['.--check','--config=pyproject.toml', '-v']
+          args: '.--check --config=pyproject.toml -v'
 
       - name: Test with pytest
         run: |
