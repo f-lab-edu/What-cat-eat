@@ -39,7 +39,7 @@ jobs:
         uses: jpetrucciani/black-check@22.12.0
         with:
           path: .
-          args: ['--config=pyproject.toml', '.--check']
+          args: --config=pyproject.toml .--check
 
       - name: Test with pytest
         run: |
