@@ -68,7 +68,7 @@ def test_user_create(user_service):
 
 def test_get_user(user_service):
     user = test_user_create(user_service)
-    user_get = user_service.get(id=user.id)
+    user_get = user_service.get(user.id)
 
     assert user_get.id == 1
     assert user_get.user_id == "test_id"

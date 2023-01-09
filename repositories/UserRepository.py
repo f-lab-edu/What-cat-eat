@@ -22,7 +22,7 @@ class UserRepository(AbstractRepository):
         self.db = db
 
     def get(self, id: int) -> User:
-        user = self.db.get(self._user, id)
+        user = self.db.get(User, id)
         if not user:
             return None
         return user
@@ -65,7 +65,7 @@ class FakeRepository(AbstractRepository):
         self._user.append(user_new)
         return self._user[user_new.id - 1]
 
-    def get(self, id):
+    def get(self, id: int):
         user = self._user[id - 1]
         if not user:
             return None

@@ -15,7 +15,7 @@ class UserService:
         self.userRepository = userRepository
 
     def get(self, id: int) -> User:
-        user = self.userRepository.get(User, id=id)
+        user = self.userRepository.get(id=id)
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
         return user

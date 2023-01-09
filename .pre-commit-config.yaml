@@ -1,16 +1,19 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: check-yaml
-    -   id: check-json
--   repo: https://github.com/PyCQA/flake8
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-json
+
+  - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
-    -   id: flake8
--   repo: https://github.com/psf/black
+      - id: flake8
+        language: python
+
+  - repo: https://github.com/psf/black
     rev: stable
     hooks:
-    -   id: black
+      - id: black
         language_version: python3.8

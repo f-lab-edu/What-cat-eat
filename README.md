@@ -55,7 +55,15 @@ $ pip install pytest
 ```
 python -m pytest tests
 ```
-
+## Docker 실행 방법
+1. docker 이미지 만들기
+```
+docker build -t myimage .
+```
+2. 컨테이너 만들기
+```
+docker run -d --name mycontainer -p 80:80 myimage
+```
 ## 사용 기술
 1. FastAPI
 2. Python3.10
