@@ -3,7 +3,6 @@ from passlib.context import CryptContext
 from datetime import datetime
 from core.config import settings
 from datetime import timedelta
-from typing import Any, Union
 from fastapi.security import OAuth2PasswordRequestForm
 from repositories.UserRepository import UserRepository
 from fastapi import Depends, HTTPException
@@ -30,16 +29,14 @@ class LoginService:
             return None
         return user
 
-    def create_access_token(
-        subject: Union[str, Any], expires_delta: timedelta = None
-    ) -> str:
+    def create_access_token(self, expires_delta: timedelta = None) -> str:
         if expires_delta:
             expire = datetime.now() + expires_delta
         else:
             expire = datetime.now() + timedelta(
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             )
-        to_encode = {"exp": expire, "sub": str(subject)}
+        to_encode = {"exp": expire}
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
