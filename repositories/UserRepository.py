@@ -71,32 +71,26 @@ class FakeRepository(AbstractRepository):
             return None
         return user
 
-    def get_value(self, nickname: str = None, user_id: str = None):
-        result = (user_id in [i.user_id for i in self._user]) | (
-            nickname in [i.nickname for i in self._user]
-        )
-        if not result:
-            return None
-        return True
-
     def get_user_by_user_id(self, user_id: str = None) -> User:
-        user = user_id in [i.user_id for i in self._user]
-        if not user:
-            return None
-        return user
+        is_user = None
+        for i in self._user:
+            if i.user_id == user_id:
+                is_user = i
+        return is_user
 
     def get_user_by_nickname(self, nickname: str = None) -> User:
-        user = nickname in [i.nickname for i in self._user]
-        if not user:
-            return None
-        return user
+        is_user = None
+        for i in self._user:
+            if i.nickname == nickname:
+                is_user = i
+        return is_user
 
-    def update(self, id: int, user_update: User):
+    def update(self, id: int, user_update: User) -> User:
         user = self._user[id - 1]
         user.nickname = user_update.nickname
         user.password = user_update.password
         return user
 
-    def delete(self, user: User, id: int):
+    def delete(self, user: User, id: int) -> int:
         del self._user[id - 1]
         return len(self._user)
