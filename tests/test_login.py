@@ -59,6 +59,51 @@ def test_password_is_incorrect(login_service):
     assert response.value.detail == "아이디나 비밀번호가 틀렸습니다."
 
 
+def test_user_id_not_entered(login_service):
+    username = Form("").default
+    password = Form("password").default
+    scope = ""
+
+    with pytest.raises(HTTPException) as response:
+        form_data = OAuth2PasswordRequestForm(
+            username=username, password=password, scope=scope
+        )
+        login_service.login(form_data)
+
+    assert response.value.status_code == 401
+    assert response.value.detail == "아이디나 비밀번호가 틀렸습니다."
+
+
+def test_password_not_entered(login_service):
+    username = Form("test_id").default
+    password = Form("").default
+    scope = ""
+
+    with pytest.raises(HTTPException) as response:
+        form_data = OAuth2PasswordRequestForm(
+            username=username, password=password, scope=scope
+        )
+        login_service.login(form_data)
+
+    assert response.value.status_code == 401
+    assert response.value.detail == "아이디나 비밀번호가 틀렸습니다."
+
+
+def test_user_id_and_password_not_enterd(login_service):
+    username = Form("").default
+    password = Form("").default
+    scope = ""
+
+    with pytest.raises(HTTPException) as response:
+        form_data = OAuth2PasswordRequestForm(
+            username=username, password=password, scope=scope
+        )
+        login_service.login(form_data)
+
+    assert response.value.status_code == 401
+    assert response.value.detail == "아이디나 비밀번호가 틀렸습니다."
+
+
 def test_login(login_service):
     username = Form("test_id").default
     password = Form("test1234").default
@@ -69,5 +114,5 @@ def test_login(login_service):
     )
     token = login_service.login(form_data)
 
-    assert type(token["access_token"]) == str
-    assert token["token_type"] == "bearer"
+    assert type(token.access_token) == str
+    assert token.token_type == "bearer"

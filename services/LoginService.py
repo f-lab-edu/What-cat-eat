@@ -7,9 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from repositories.UserRepository import UserRepository
 from fastapi import Depends, HTTPException
 from jose import jwt
-
-ALGORITHM = "HS256"
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from schema.login import Login
 
 
 class LoginService:
@@ -19,6 +17,7 @@ class LoginService:
         self.userRepository = userRepository
 
     def verify_password(self, password: str, user_password: str) -> bool:
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         return pwd_context.verify(password, user_password)
 
     def authenticate_user(self, user_id: str, password: str) -> User:
@@ -29,18 +28,15 @@ class LoginService:
             return None
         return user
 
-    def create_access_token(self, expires_delta: timedelta = None) -> str:
-        if expires_delta:
-            expire = datetime.now() + expires_delta
-        else:
-            expire = datetime.now() + timedelta(
-                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-            )
+    def create_access_token(
+        self, expires_delta: timedelta = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    ) -> str:
+        expire = datetime.now() + expires_delta
         to_encode = {"exp": expire}
-        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
         return encoded_jwt
 
-    def login(self, form_data: OAuth2PasswordRequestForm = Depends()):
+    def login(self, form_data: OAuth2PasswordRequestForm = Depends()) -> Login:
         user = self.authenticate_user(
             user_id=form_data.username, password=form_data.password
         )
@@ -50,7 +46,4 @@ class LoginService:
         access_token = self.create_access_token(
             expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-        }
+        return Login(access_token=access_token, token_type="bearer")
