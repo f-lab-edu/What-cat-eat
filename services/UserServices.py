@@ -71,4 +71,4 @@ class UserService:
         user_exist = self.get(id)
         if not user_exist:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
-        return self.userRepository.delete(User, id)
+        return self.userRepository.delete(id)
