@@ -15,24 +15,25 @@ class LoginService:
 
     def __init__(self, userRepository: UserRepository = Depends()) -> None:
         self.userRepository = userRepository
+        self.user = None
 
     def verify_password(self, password: str, user_password: str) -> bool:
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         return pwd_context.verify(password, user_password)
 
     def authenticate_user(self, user_id: str, password: str) -> User:
-        user = self.userRepository.get_user_by_user_id(user_id=user_id)
-        if not user:
+        self.user = self.userRepository.get_user_by_user_id(user_id=user_id)
+        if not self.user:
             return None
-        if not self.verify_password(password, user.password):
+        if not self.verify_password(password, self.user.password):
             return None
-        return user
+        return self.user
 
     def create_access_token(
         self, expires_delta: timedelta = settings.ACCESS_TOKEN_EXPIRE_MINUTES
     ) -> str:
         expire = datetime.now() + expires_delta
-        to_encode = {"exp": expire}
+        to_encode = {"exp": expire, "iss": "what-cat-eat", "sub": str(self.user.id)}
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
         return encoded_jwt
 

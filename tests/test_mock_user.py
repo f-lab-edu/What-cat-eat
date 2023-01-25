@@ -2,7 +2,7 @@ import pytest
 from fastapi import HTTPException
 from schema.user import UserCreate, UserUpdate
 from pydantic import ValidationError
-from tests.conftest import MOCK_TEST_USER
+from tests.conftest import MOCK_TEST_USER, MOCK_TEST_USER_NEW
 
 
 def test_max_length_in_userid(mock_user_service):
@@ -74,15 +74,35 @@ def test_unique_nickname(mock_user_service):
     assert response.value.detail == "이미 존재하는 사용자입니다."
 
 
+def test_update_another_user(mock_user_service):
+    with pytest.raises(HTTPException) as response:
+        mock_user_service.update(
+            MOCK_TEST_USER.id,
+            UserUpdate(nickname="amend_user", password="test1234"),
+            MOCK_TEST_USER_NEW,
+        )
+
+    assert response.value.status_code == 401
+
+
 def test_update_user(mock_user_service):
     user_update = mock_user_service.update(
-        MOCK_TEST_USER.id, UserUpdate(nickname="amend_user", password="test1234")
+        MOCK_TEST_USER.id,
+        UserUpdate(nickname="amend_user", password="test1234"),
+        MOCK_TEST_USER,
     )
 
     assert user_update.nickname == "amend_user"
 
 
+def test_delete_another_user(mock_user_service):
+    with pytest.raises(HTTPException) as response:
+        mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER_NEW)
+
+    assert response.value.status_code == 401
+
+
 def test_delete_user(mock_user_service):
-    count = mock_user_service.delete(MOCK_TEST_USER.id)
+    count = mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER)
 
     assert count == 0

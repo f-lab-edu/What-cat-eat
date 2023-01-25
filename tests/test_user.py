@@ -183,8 +183,17 @@ def test_get_user():
 
 
 def test_update_user():
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    data = {"username": "test_user", "password": "testuser1"}
+    token = client.post(f"{BASE_URL}/login/", data=data, headers=headers)
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token.json()['access_token']}",
+    }
     response = client.put(
         f"{BASE_URL}/user/{ID}/",
+        headers=headers,
         json={
             "nickname": "amend_user",
             "password": "testuser1",
@@ -195,6 +204,14 @@ def test_update_user():
 
 
 def test_delete_user():
-    response = client.delete(f"{BASE_URL}/user/{ID}/")
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    data = {"username": "test_user", "password": "testuser1"}
+    token = client.post(f"{BASE_URL}/login/", data=data, headers=headers)
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token.json()['access_token']}",
+    }
+    response = client.delete(f"{BASE_URL}/user/{ID}/", headers=headers)
     assert response.status_code == 200
     assert response.json() == {"detail": "탈퇴되었습니다."}

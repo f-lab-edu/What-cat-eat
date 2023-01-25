@@ -16,6 +16,15 @@ MOCK_TEST_USER = User(
     updated_at=datetime.now(),
 )
 
+MOCK_TEST_USER_NEW = User(
+    id=2,
+    user_id="test_id2",
+    password=CryptContext(schemes=["bcrypt"], deprecated="auto").hash("test1234"),
+    nickname="test_nickname2",
+    created_at=datetime.now(),
+    updated_at=datetime.now(),
+)
+
 
 def mock_fake_repository():
     repository = FakeRepository()
