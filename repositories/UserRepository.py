@@ -1,6 +1,6 @@
 import abc
 from sqlalchemy.orm import Session
-from database import get_db
+from api.deps import get_db
 from fastapi import Depends
 from models.user import User
 

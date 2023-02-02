@@ -74,12 +74,12 @@ def test_unique_nickname(mock_user_service):
     assert response.value.detail == "이미 존재하는 사용자입니다."
 
 
-def test_update_another_user(mock_user_service):
+def test_update_another_user(mock_user_service_new):
     with pytest.raises(HTTPException) as response:
-        mock_user_service.update(
+        mock_user_service_new.update(
             MOCK_TEST_USER.id,
             UserUpdate(nickname="amend_user", password="test1234"),
-            MOCK_TEST_USER_NEW,
+            MOCK_TEST_USER_NEW.id,
         )
 
     assert response.value.status_code == 401
@@ -89,20 +89,20 @@ def test_update_user(mock_user_service):
     user_update = mock_user_service.update(
         MOCK_TEST_USER.id,
         UserUpdate(nickname="amend_user", password="test1234"),
-        MOCK_TEST_USER,
+        MOCK_TEST_USER.id,
     )
 
     assert user_update.nickname == "amend_user"
 
 
-def test_delete_another_user(mock_user_service):
+def test_delete_another_user(mock_user_service_new):
     with pytest.raises(HTTPException) as response:
-        mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER_NEW)
+        mock_user_service_new.delete(MOCK_TEST_USER.id, MOCK_TEST_USER_NEW.id)
 
     assert response.value.status_code == 401
 
 
 def test_delete_user(mock_user_service):
-    count = mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER)
+    count = mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER.id)
 
     assert count == 0

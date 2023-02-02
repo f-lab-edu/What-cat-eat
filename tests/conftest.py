@@ -32,9 +32,21 @@ def mock_fake_repository():
     return repository
 
 
+def mock_fake_repository_with_new_memeber():
+    repository = FakeRepository()
+    repository.create(MOCK_TEST_USER)
+    repository.create(MOCK_TEST_USER_NEW)
+    return repository
+
+
 @pytest.fixture(autouse=True)
 def mock_user_service():
     return UserService(userRepository=mock_fake_repository())
+
+
+@pytest.fixture(autouse=True)
+def mock_user_service_new():
+    return UserService(userRepository=mock_fake_repository_with_new_memeber())
 
 
 @pytest.fixture(autouse=True)

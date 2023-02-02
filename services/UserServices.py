@@ -5,8 +5,7 @@ from models.user import User
 from datetime import datetime
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
-from core.config import settings
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -56,12 +55,14 @@ class UserService:
             )
         )
 
-    def update(self, id: int, user_body: UserUpdate, req_user: User) -> User:
-        user_exist = self.get(id)
-        if not user_exist:
+    def update(self, id: int, user_body: UserUpdate, current_user_id: int) -> User:
+        user = self.get(id)
+        current_user = self.get(current_user_id)
+
+        if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
-        if req_user.id != user_exist.id:
+        if user.id != current_user.id:
             raise HTTPException(status_code=401, detail="권한이 없습니다.")
 
         if validate_password(user_body.password):
@@ -74,17 +75,14 @@ class UserService:
             id, User(nickname=user_body.nickname, password=user_body.password)
         )
 
-    def delete(self, id: int, req_user: User) -> None:
-        user_exist = self.get(id)
-        if not user_exist:
+    def delete(self, id: int, current_user_id: int) -> None:
+        user = self.get(id)
+        current_user = self.get(current_user_id)
+
+        if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
-        if req_user.id != user_exist.id:
+        if user.id != current_user.id:
             raise HTTPException(status_code=401, detail="권한이 없습니다.")
 
         return self.userRepository.delete(id)
-
-    def get_current_user(self, token: str = Depends(oauth2_scheme)):
-        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        req_user = self.get(int(decoded_token["sub"]))
-        return req_user
