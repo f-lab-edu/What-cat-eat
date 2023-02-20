@@ -1,18 +1,8 @@
-import abc
+from repositories.RepositoryMeta import AbstractRepository
 from sqlalchemy.orm import Session
 from api.deps import get_db
 from fastapi import Depends
 from models.user import User
-
-
-class AbstractRepository(abc.ABC):
-    @abc.abstractmethod
-    def create(self, model):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get(self, model, id):
-        raise NotImplementedError
 
 
 class UserRepository(AbstractRepository):
@@ -57,11 +47,12 @@ class UserRepository(AbstractRepository):
         self.db.commit()
 
 
-class FakeRepository(AbstractRepository):
+class UserFakeRepository(AbstractRepository):
     def __init__(self):
         self._user = []
         self._user_id = {}
         self._user_nickname = {}
+        self.cats = []
 
     def create(self, user_new: User):
         self._user.append(user_new)
@@ -70,9 +61,10 @@ class FakeRepository(AbstractRepository):
         return self._user[user_new.id - 1]
 
     def get(self, id: int):
-        user = self._user[id - 1]
-        if not user:
-            return None
+        try:
+            user = self._user[id - 1]
+        except IndexError:
+            user = None
         return user
 
     def get_user_by_user_id(self, user_id: str = None) -> User:

@@ -79,7 +79,7 @@ def test_update_another_user(mock_user_service_new):
         mock_user_service_new.update(
             MOCK_TEST_USER.id,
             UserUpdate(nickname="amend_user", password="test1234"),
-            MOCK_TEST_USER_NEW.id,
+            MOCK_TEST_USER_NEW.user_id,
         )
 
     assert response.value.status_code == 401
@@ -89,7 +89,7 @@ def test_update_user(mock_user_service):
     user_update = mock_user_service.update(
         MOCK_TEST_USER.id,
         UserUpdate(nickname="amend_user", password="test1234"),
-        MOCK_TEST_USER.id,
+        MOCK_TEST_USER.user_id,
     )
 
     assert user_update.nickname == "amend_user"
@@ -97,12 +97,12 @@ def test_update_user(mock_user_service):
 
 def test_delete_another_user(mock_user_service_new):
     with pytest.raises(HTTPException) as response:
-        mock_user_service_new.delete(MOCK_TEST_USER.id, MOCK_TEST_USER_NEW.id)
+        mock_user_service_new.delete(MOCK_TEST_USER.id, MOCK_TEST_USER_NEW.user_id)
 
     assert response.value.status_code == 401
 
 
 def test_delete_user(mock_user_service):
-    count = mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER.id)
+    count = mock_user_service.delete(MOCK_TEST_USER.id, MOCK_TEST_USER.user_id)
 
     assert count == 0

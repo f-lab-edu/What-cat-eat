@@ -23,6 +23,12 @@ class UserService:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
         return user
 
+    def get_user_by_user_id(self, user_id: int) -> User:
+        user = self.userRepository.get_user_by_user_id(user_id=user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+        return user
+
     def create(self, user_body: UserCreate) -> User:
         find_user_by_user_id = self.userRepository.get_user_by_user_id(
             user_id=user_body.user_id
@@ -55,9 +61,9 @@ class UserService:
             )
         )
 
-    def update(self, id: int, user_body: UserUpdate, current_user_id: int) -> User:
+    def update(self, id: int, user_body: UserUpdate, current_user_id: str) -> User:
         user = self.get(id)
-        current_user = self.get(current_user_id)
+        current_user = self.get_user_by_user_id(current_user_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
@@ -75,9 +81,9 @@ class UserService:
             id, User(nickname=user_body.nickname, password=user_body.password)
         )
 
-    def delete(self, id: int, current_user_id: int) -> None:
+    def delete(self, id: int, current_user_id: str) -> None:
         user = self.get(id)
-        current_user = self.get(current_user_id)
+        current_user = self.get_user_by_user_id(current_user_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
