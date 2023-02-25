@@ -61,10 +61,9 @@ class UserFakeRepository(AbstractRepository):
         return self._user[user_new.id - 1]
 
     def get(self, id: int):
-        try:
-            user = self._user[id - 1]
-        except IndexError:
-            user = None
+        if len(self._user) < id:
+            return None
+        user = self._user[id - 1]
         return user
 
     def get_user_by_user_id(self, user_id: str = None) -> User:

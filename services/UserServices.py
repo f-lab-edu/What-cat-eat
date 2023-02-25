@@ -23,7 +23,7 @@ class UserService:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
         return user
 
-    def get_user_by_user_id(self, user_id: int) -> User:
+    def get_user_by_user_id(self, user_id: str) -> User:
         user = self.userRepository.get_user_by_user_id(user_id=user_id)
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")

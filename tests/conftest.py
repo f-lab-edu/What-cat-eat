@@ -1,7 +1,6 @@
-from datetime import datetime
 import pytest
+from datetime import datetime
 from passlib.context import CryptContext
-
 from models.user import User
 from models.cat import Cat
 from repositories import UserRepository, CatRepository
@@ -87,9 +86,15 @@ def mock_login_service():
 
 @pytest.fixture(autouse=True)
 def mock_cat_service():
-    return CatService(catRepository=mock_cat_fake_repository())
+    return CatService(
+        catRepository=mock_cat_fake_repository(),
+        userRepository=mock_user_fake_repository(),
+    )
 
 
 @pytest.fixture(autouse=True)
 def mock_cat_service_new():
-    return CatService(catRepository=mock_cat_fake_repository_with_new_member())
+    return CatService(
+        catRepository=mock_cat_fake_repository_with_new_member(),
+        userRepository=mock_fake_repository_with_new_member(),
+    )

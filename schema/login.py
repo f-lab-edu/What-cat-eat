@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Union
 
 
 class Login(BaseModel):
@@ -8,7 +7,3 @@ class Login(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class TokenData(BaseModel):
-    user_id: Union[str, None] = None

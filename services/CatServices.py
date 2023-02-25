@@ -1,4 +1,5 @@
 from repositories.CatRepository import CatRepository
+from repositories.UserRepository import UserRepository
 from fastapi import Depends, HTTPException
 from schema.cat import CatCreate, CatUpdate
 from models.cat import Cat
@@ -12,9 +13,15 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class CatService:
     catRepository: CatRepository
+    userRepository: UserRepository
 
-    def __init__(self, catRepository: CatRepository = Depends()) -> None:
+    def __init__(
+        self,
+        catRepository: CatRepository = Depends(),
+        userRepository: UserRepository = Depends(),
+    ) -> None:
         self.catRepository = catRepository
+        self.userRepository = userRepository
 
     def get(self, id: int) -> Cat:
         cat = self.catRepository.get(id=id)
@@ -23,7 +30,7 @@ class CatService:
         return cat
 
     def create(self, cat_body: CatCreate, current_user_id: str) -> Cat:
-        user = self.catRepository.get_user_by_user_id(current_user_id)
+        user = self.userRepository.get_user_by_user_id(current_user_id)
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
@@ -46,7 +53,7 @@ class CatService:
 
     def update(self, id: int, cat_body: CatUpdate, current_user_id: str) -> Cat:
         cat = self.get(id)
-        user = self.catRepository.get_user_by_user_id(current_user_id)
+        user = self.userRepository.get_user_by_user_id(current_user_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
@@ -75,7 +82,7 @@ class CatService:
 
     def delete(self, id: int, current_user_id: int) -> None:
         cat = self.get(id)
-        user = self.catRepository.get_user_by_user_id(current_user_id)
+        user = self.userRepository.get_user_by_user_id(current_user_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")

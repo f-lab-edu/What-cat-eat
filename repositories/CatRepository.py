@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from api.deps import get_db
 from fastapi import Depends
 from models.cat import Cat
-from models.user import User
 
 
 class CatRepository(AbstractRepository):
@@ -23,12 +22,6 @@ class CatRepository(AbstractRepository):
         if not cat:
             return None
         return cat
-
-    def get_user_by_user_id(self, current_user_id: str) -> User:
-        user = self.db.query(User).filter(User.user_id == current_user_id).first()
-        if not user:
-            return None
-        return user
 
     def create(self, cat: Cat) -> Cat:
         self.db.add(cat)
@@ -55,21 +48,14 @@ class CatFakeRepository(AbstractRepository):
         self.user = user
 
     def get(self, id: int):
-        try:
-            cat = self._cat[id - 1]
-        except IndexError:
-            cat = None
+        if len(self._cat) < id:
+            return None
+        cat = self._cat[id - 1]
         return cat
 
     def get_cat_by_user_id(self, user_id: int = None) -> Cat:
         if self._cat.user.id == user_id:
             return self.user.cats
-
-    def get_user_by_user_id(self, current_user_id: str) -> User:
-        try:
-            return self.user._user_id[current_user_id]
-        except KeyError:
-            return None
 
     def create(self, cat: Cat):
         self.user.cats.append(cat)
