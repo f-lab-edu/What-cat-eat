@@ -75,6 +75,3 @@ class CatFakeRepository(AbstractRepository):
         del self._cat[id - 1]
         del self._cat_id[delete_cat.id]
         return len(self._cat)
-
-
-# cat_id를 id로 바꿈 -> 아마 에러날 듯
