@@ -1,9 +1,9 @@
-from typing import List
-from pydantic import BaseModel
+from typing import List, Optional
+from pydantic import BaseModel, Field
 
 
 class NutrientBase(BaseModel):
-    name: str
+    nutrient_name: str
     percentage: int
     is_above: bool
 
@@ -12,25 +12,25 @@ class NutrientCreate(NutrientBase):
     pass
 
 
-class Nutrient(NutrientBase):
-    id: int
-    pet_food_id: int
+class NutrientGet(NutrientBase):
+    id: Optional[int]
+    pet_food_id: Optional[int] = None
 
     class Config:
         orm_mode = True
 
 
 class ComponentBase(BaseModel):
-    name: str
+    component_name: str
 
 
 class ComponentCreate(ComponentBase):
     pass
 
 
-class Component(ComponentBase):
-    id: int
-    pet_food_id: int
+class ComponentGet(ComponentBase):
+    id: Optional[int]
+    pet_food_id: Optional[int] = None
 
     class Config:
         orm_mode = True
@@ -38,17 +38,21 @@ class Component(ComponentBase):
 
 class PetFoodBase(BaseModel):
     name: str
+    nutrients: List[NutrientGet] = []
+    components: List[ComponentGet] = []
 
 
 class PetFoodGet(PetFoodBase):
-    id: int
-    nutrients: List[Nutrient] = []
-    components: List[Component] = []
+    id: Optional[int] = Field(primary_key=True)
 
     class Config:
         orm_mode = True
 
 
-class PetFoodCreateUpdate(PetFoodBase):
-    nutrients: List[Nutrient] = []
-    components: List[Component] = []
+class PetFoodCreate(PetFoodBase):
+    pet_food_id: int = None
+
+
+class PetFoodUpdate(PetFoodBase):
+    id: Optional[int] = Field(primary_key=True)
+    pet_food_id: int = None

@@ -28,20 +28,6 @@ pet_food_component = Table(
 )
 
 
-class PetFood(Base):
-    __tablename__ = "pet_food"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(30), nullable=False, index=True)
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
-    updated_at = Column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
-    )
-
-    nutrients = relationship("Nutrient", back_populates="pet_food", lazy="dynamic")
-    components = relationship("Component", back_populates="pet_food", lazy="dynamic")
-
-
 class Nutrient(Base):
     __tablename__ = "nutrient"
 
@@ -50,7 +36,9 @@ class Nutrient(Base):
     percentage = Column(Integer, nullable=False)
     is_above = Column(Boolean, nullable=False)
 
-    pet_food = relationship("PetFood", back_populates="nutrient")
+    pet_food = relationship(
+        "PetFood", secondary=pet_food_nutrient, back_populates="nutrients"
+    )
 
     __table_args__ = (UniqueConstraint("nutrient_name", "percentage", "is_above"),)
 
@@ -61,6 +49,26 @@ class Component(Base):
     id = Column(Integer, primary_key=True)
     component_name = Column(String(10), nullable=False)
 
-    pet_food = relationship("PetFood", back_populates="component")
+    pet_food = relationship(
+        "PetFood", secondary=pet_food_component, back_populates="components"
+    )
 
     __table_args__ = (UniqueConstraint("component_name"),)
+
+
+class PetFood(Base):
+    __tablename__ = "pet_food"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(30), nullable=False, index=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(
+        DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    nutrients = relationship(
+        "Nutrient", secondary=pet_food_nutrient, back_populates="pet_food"
+    )
+    components = relationship(
+        "Component", secondary=pet_food_component, back_populates="pet_food"
+    )
