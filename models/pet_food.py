@@ -60,7 +60,7 @@ class PetFood(Base):
     __tablename__ = "pet_food"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(30), nullable=False, index=True)
+    name = Column(String(30), nullable=False, index=True, unique=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()

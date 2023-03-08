@@ -11,7 +11,7 @@ def test_get_cat(mock_cat_service):
     assert cat.name == "test_cat"
 
 
-def test_get_unknown_cat(mock_cat_service):
+def test_get_nonexistent_cat(mock_cat_service):
     with pytest.raises(HTTPException) as response:
         mock_cat_service.get(999999)
 
@@ -111,6 +111,24 @@ def test_update_already_represent_cat(mock_cat_service):
 
     assert response.value.status_code == 409
     assert response.value.detail == "이미 대표 고양이가 있습니다."
+
+
+def test_update_nonexistent_cat(mock_cat_service):
+    with pytest.raises(HTTPException) as response:
+        mock_cat_service.update(
+            999999,
+            CatUpdate(
+                represent_cat=True,
+                name="test_cat_amend",
+                birth=datetime.now(),
+                gender="Female",
+                species="샴",
+                weight=3,
+            ),
+            MOCK_TEST_USER.user_id,
+        )
+    assert response.value.status_code == 404
+    assert response.value.detail == "해당 고양이를 찾을 수 없습니다."
 
 
 def test_update_cat(mock_cat_service):

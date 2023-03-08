@@ -3,7 +3,12 @@ from sqlalchemy.orm import Session
 from api.deps import get_db
 from fastapi import Depends
 from models.pet_food import PetFood, Nutrient, Component
-from schema.pet_food import PetFoodCreate, PetFoodGet, NutrientCreate, ComponentCreate
+from schema.pet_food import (
+    PetFoodCreate,
+    PetFoodGet,
+    NutrientGet,
+    ComponentGet,
+)
 from sqlalchemy.orm import joinedload
 
 
@@ -25,8 +30,19 @@ class PetFoodRepository(AbstractRepository):
             return None
         return pet_food
 
-    def get_all_pet_food(self):
-        return self.db.query(PetFood).all()
+    def get_pet_food_by_name(self, name: str):
+        pet_food = self.db.query(PetFood).filter(PetFood.name == name).first()
+        if not pet_food:
+            return None
+        return pet_food
+
+    def get_all_pet_foods(self):
+        pet_foods = (
+            self.db.query(PetFood)
+            .options(joinedload(PetFood.nutrients), joinedload(PetFood.components))
+            .all()
+        )
+        return pet_foods
 
     def create(self, pet_food: PetFoodCreate) -> PetFood:
         pet_food_obj = PetFood(name=pet_food.name)
@@ -57,13 +73,7 @@ class PetFoodRepository(AbstractRepository):
         self.db.delete(pet_food)
         self.db.commit()
 
-    def get_nutrient(self, id: int):
-        nutrient = self.db.get(Nutrient, id)
-        if not nutrient:
-            return None
-        return nutrient
-
-    def get_nutrient_by_condition(self, condition):
+    def get_nutrient_by_condition(self, condition: NutrientGet):
         nutrient = (
             self.db.query(Nutrient)
             .filter(
@@ -87,24 +97,7 @@ class PetFoodRepository(AbstractRepository):
         self.db.refresh(nutrient_obj)
         return nutrient_obj
 
-    def update_nutrient(self, id: int, update_nutrient: NutrientCreate) -> Nutrient:
-        update_nutrient.id = id
-        self.db.merge(update_nutrient)
-        self.db.commit()
-        return update_nutrient
-
-    def delete_nutrient(self, id: int) -> None:
-        delete_user = self.db.get(Nutrient, id)
-        self.db.delete(delete_user)
-        self.db.commit()
-
-    def get_component(self, id: int):
-        component = self.db.get(Component, id)
-        if not component:
-            return None
-        return component
-
-    def get_component_by_condition(self, condition):
+    def get_component_by_condition(self, condition: ComponentGet):
         component = (
             self.db.query(Component)
             .filter(
@@ -123,13 +116,83 @@ class PetFoodRepository(AbstractRepository):
         self.db.refresh(component_obj)
         return component_obj
 
-    def update_component(self, id: int, update_component: ComponentCreate) -> Nutrient:
-        update_component.id = id
-        self.db.merge(update_component)
-        self.db.commit()
-        return update_component
 
-    def delete_component(self, id: int) -> None:
-        delete_user = self.db.get(Component, id)
-        self.db.delete(delete_user)
-        self.db.commit()
+class PetFoodFakeRepository(AbstractRepository):
+    def __init__(self):
+        self._pet_food = []
+        self._nutirents = []
+        self._components = []
+        self._pet_food_nutrient = {}
+        self._pet_food_component = {}
+
+    def get(self, id) -> PetFood:
+        if len(self._pet_food) < id:
+            return None
+        pet_food = self._pet_food[id - 1]
+        return pet_food
+
+    def get_pet_food_by_name(self, name: str):
+        for pet_food in self._pet_food:
+            if pet_food.name == name:
+                return pet_food
+        return None
+
+    def get_all_pet_foods(self):
+        return self._pet_food
+
+    def create(self, pet_food: PetFood) -> PetFood:
+        pet_food.id = len(self._pet_food) + 1
+        self._pet_food.append(pet_food)
+
+        nutrient_value = self._pet_food_nutrient.get(len(self._pet_food) - 1, [])
+        component_value = self._pet_food_component.get(len(self._pet_food) - 1, [])
+
+        for nutrient in pet_food.nutrients:
+            nutrient_value.append(nutrient)
+
+        for component in pet_food.components:
+            component_value.append(component)
+
+        self._pet_food_nutrient[len(self._pet_food) - 1] = nutrient_value
+        self._pet_food_component[len(self._pet_food) - 1] = component_value
+        return pet_food
+
+    def update(self, update_pet_food: PetFood) -> PetFood:
+        self._pet_food[update_pet_food.id - 1] = update_pet_food
+
+        nutrient_value = self._pet_food_nutrient.get(len(self._pet_food) - 1, [])
+        component_value = self._pet_food_component.get(len(self._pet_food) - 1, [])
+
+        for nutrient in update_pet_food.nutrients:
+            nutrient_value.append(nutrient)
+
+        for component in update_pet_food.components:
+            component_value.append(component)
+
+        self._pet_food_nutrient[len(self._pet_food) - 1] = nutrient_value
+        self._pet_food_component[len(self._pet_food) - 1] = component_value
+
+        pet_food = self._pet_food[update_pet_food.id - 1]
+        return pet_food
+
+    def delete(self, id: int) -> None:
+        del self._pet_food[id - 1]
+        return len(self._pet_food)
+
+    def get_nutrient_by_condition(self, condition: NutrientGet):
+        if condition in self._nutirents:
+            return condition
+        return None
+
+    def create_nutrient(self, nutrient: dict) -> Nutrient:
+        self._nutirents.append(nutrient)
+        return nutrient
+
+    def get_component_by_condition(self, condition: NutrientGet):
+        if condition in self._components:
+            return condition
+        return None
+
+    def create_component(self, component: dict) -> Nutrient:
+        self._nutirents.append(component)
+        return component

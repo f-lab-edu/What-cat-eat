@@ -3,10 +3,12 @@ from datetime import datetime
 from passlib.context import CryptContext
 from models.user import User
 from models.cat import Cat
-from repositories import UserRepository, CatRepository
+from models.pet_food import PetFood, Nutrient, Component
+from repositories import UserRepository, CatRepository, PetFoodRepository
 from services.LoginService import LoginService
 from services.UserServices import UserService
 from services.CatServices import CatService
+from services.PetFoodService import PetFoodService
 
 MOCK_TEST_USER = User(
     id=1,
@@ -40,6 +42,18 @@ MOCK_TEST_CAT = Cat(
     user=MOCK_TEST_USER,
 )
 
+MOCK_NUTRIENT = Nutrient(nutrient_name="지방", percentage=10, is_above=True)
+
+MOCK_COMPONENT = Component(component_name="참치")
+
+MOCK_PET_FOOD = PetFood(
+    id=1, name="맛있는 사료", nutrients=[MOCK_NUTRIENT], components=[MOCK_COMPONENT]
+)
+
+MOCK_PET_FOOD_NEW = PetFood(
+    id=2, name="건강한 사료", nutrients=[MOCK_NUTRIENT], components=[MOCK_COMPONENT]
+)
+
 
 def mock_user_fake_repository():
     user_repository = UserRepository.UserFakeRepository()
@@ -65,8 +79,20 @@ def mock_cat_fake_repository_with_new_member():
     user = mock_fake_repository_with_new_member()
     cat_repository = CatRepository.CatFakeRepository(user)
     cat_repository.create(MOCK_TEST_CAT)
-
     return cat_repository
+
+
+def mock_pet_food_repository():
+    pet_food_repository = PetFoodRepository.PetFoodFakeRepository()
+    pet_food_repository.create(MOCK_PET_FOOD)
+    return pet_food_repository
+
+
+def mock_pet_food_repository_with_new_pet_food():
+    pet_food_repository = PetFoodRepository.PetFoodFakeRepository()
+    pet_food_repository.create(MOCK_PET_FOOD)
+    pet_food_repository.create(MOCK_PET_FOOD_NEW)
+    return pet_food_repository
 
 
 @pytest.fixture(autouse=True)
@@ -97,4 +123,16 @@ def mock_cat_service_new():
     return CatService(
         catRepository=mock_cat_fake_repository_with_new_member(),
         userRepository=mock_fake_repository_with_new_member(),
+    )
+
+
+@pytest.fixture(autouse=True)
+def mock_pet_food_service():
+    return PetFoodService(pet_food_repository=mock_pet_food_repository())
+
+
+@pytest.fixture(autouse=True)
+def mock_pet_food_service_new():
+    return PetFoodService(
+        pet_food_repository=mock_pet_food_repository_with_new_pet_food()
     )

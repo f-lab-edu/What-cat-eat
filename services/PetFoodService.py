@@ -25,7 +25,17 @@ class PetFoodService:
             raise HTTPException(status_code=404, detail="해당 사료를 찾을 수 없습니다.")
         return pet_food
 
+    def get_all_pet_foods(self):
+        pet_foods = self.pet_food_repository.get_all_pet_foods()
+        return pet_foods
+
     def create(self, pet_food_body: PetFoodCreate) -> PetFood:
+        find_pet_food_by_name = self.pet_food_repository.get_pet_food_by_name(
+            pet_food_body.name
+        )
+        if find_pet_food_by_name:
+            raise HTTPException(status_code=409, detail="해당 사료는 이미 존재합니다.")
+
         nutrients = self.finding_nutrient(pet_food_body.nutrients)
         components = self.finding_components(pet_food_body.components)
 
@@ -35,20 +45,28 @@ class PetFoodService:
 
     def update(self, id: int, pet_food_body: PetFoodUpdate) -> PetFood:
         pet_food = self.get(id)
-        nutrients = self.finding_nutrient(pet_food_body.nutrients)
-        components = self.finding_components(pet_food_body.components)
+
+        if pet_food_body.nutrients:
+            nutrients = self.finding_nutrient(pet_food_body.nutrients)
+        else:
+            nutrients = pet_food.nutrients
+
+        if pet_food_body.components:
+            components = self.finding_components(pet_food_body.components)
+        else:
+            components = pet_food.components
 
         pet_food.name = pet_food_body.name
         pet_food.nutrients = nutrients
         pet_food.components = components
 
-        return self.pet_food_repository.update(pet_food)
+        return self.pet_food_repository.update(update_pet_food=pet_food)
 
     def delete(self, id: int) -> None:
         self.get(id)
         return self.pet_food_repository.delete(id)
 
-    def finding_nutrient(self, pet_food_nutrients) -> list:
+    def finding_nutrient(self, pet_food_nutrients: list) -> list:
         nutrients = []
 
         for nutrient in pet_food_nutrients:
@@ -61,7 +79,7 @@ class PetFoodService:
 
         return nutrients
 
-    def finding_components(self, pet_food_components) -> list:
+    def finding_components(self, pet_food_components: list) -> list:
         components = []
 
         for component in pet_food_components:
