@@ -33,7 +33,11 @@ class LoginService:
         self, expires_delta: timedelta = settings.ACCESS_TOKEN_EXPIRE_MINUTES
     ) -> str:
         expire = datetime.now() + expires_delta
-        to_encode = {"exp": expire, "iss": "what-cat-eat", "sub": str(self.user.id)}
+        to_encode = {
+            "exp": expire,
+            "iss": "what-cat-eat",
+            "sub": str(self.user.user_id),
+        }
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
         return encoded_jwt
 
