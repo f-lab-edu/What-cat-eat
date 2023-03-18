@@ -47,24 +47,19 @@ class PetFoodService:
         pet_food = self.get(id)
 
         if pet_food_body.nutrients:
-            nutrients = self.finding_nutrient(pet_food_body.nutrients)
-        else:
-            nutrients = pet_food.nutrients
+            pet_food.nutrients = self.finding_nutrient(pet_food_body.nutrients)
 
         if pet_food_body.components:
-            components = self.finding_components(pet_food_body.components)
-        else:
-            components = pet_food.components
+            pet_food.components = self.finding_components(pet_food_body.components)
 
         pet_food.name = pet_food_body.name
-        pet_food.nutrients = nutrients
-        pet_food.components = components
 
         return self.pet_food_repository.update(update_pet_food=pet_food)
 
     def delete(self, id: int) -> None:
-        self.get(id)
-        return self.pet_food_repository.delete(id)
+        pet_food = self.get(id)
+        if pet_food:
+            return self.pet_food_repository.delete(id)
 
     def finding_nutrient(self, pet_food_nutrients: list) -> list:
         nutrients = []
