@@ -58,9 +58,6 @@ class CatService:
         if not user:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
-        if not cat:
-            raise HTTPException(status_code=404, detail="해당 고양이를 찾을 수 없습니다.")
-
         if cat.user.id != user.id:
             raise HTTPException(status_code=401, detail="user가 다릅니다. 권한이 없습니다.")
 
