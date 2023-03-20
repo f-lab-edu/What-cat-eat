@@ -72,3 +72,10 @@ class PetFood(Base):
     components = relationship(
         "Component", secondary=pet_food_component, back_populates="pet_food"
     )
+
+    preference = relationship(
+        "PetFoodPreference",
+        uselist=False,
+        back_populates="pet_food",
+        foreign_keys="PetFoodPreference.pet_food_id",
+    )

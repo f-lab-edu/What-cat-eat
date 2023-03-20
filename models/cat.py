@@ -22,3 +22,10 @@ class Cat(Base):
     )
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", back_populates="cats")
+
+    preferences = relationship(
+        "PetFoodPreference",
+        back_populates="cat",
+        lazy="dynamic",
+        foreign_keys="[PetFoodPreference.cat_id]",
+    )
